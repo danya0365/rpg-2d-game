@@ -39,7 +39,7 @@ const geometry = new THREE.PlaneGeometry(1, 1);
 
 export default memo(
   /* eslint-disable react/prop-types */
-  forwardRef<THREE.Object3D, GraphicProps>(function Graphic(
+  forwardRef<THREE.Mesh, GraphicProps>(function Graphic(
     {
       src,
       sheet = {
@@ -68,15 +68,6 @@ export default memo(
         Object.keys(sheet)
       );
     }
-
-    const innerRef = useRef<THREE.Mesh>(null!);
-    useImperativeHandle(
-      outerRef,
-      () => {
-        return innerRef.current;
-      },
-      []
-    );
 
     const image = useAsset(src) as HTMLImageElement;
     const texture = useLoader(THREE.TextureLoader, src);
@@ -165,15 +156,11 @@ export default memo(
       textureRef.current.repeat = textureProps.repeat;
       textureRef.current.minFilter = THREE.LinearMipMapLinearFilter;
       textureRef.current.magFilter = magFilter as any;
-    }, [texture, textureProps]);
+    }, []);
 
-    //console.log("textureProps", textureProps);
-
-    // TODO: load image texture here
-    // https://github.com/pmndrs/react-three-fiber/discussions/487
     return (
       <mesh
-        ref={innerRef}
+        ref={outerRef}
         position={[offset.x, offset.y, -offset.y / 100]}
         scale={[flipX * scale, scale, 1]}
         geometry={geometry}

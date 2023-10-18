@@ -121,8 +121,9 @@ export default function Moveable({ isStatic = false }: Props) {
         },
         update() {
           !isForced &&
+            nodeRef.current &&
             publish<MovingEvent>("moving", {
-              currentPosition: nodeRef.current!.position,
+              currentPosition: nodeRef.current.position,
               nextPosition: targetPosition,
               direction: movingDirection.current,
               facingDirection: facingDirection.current,
