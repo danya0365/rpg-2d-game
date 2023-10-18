@@ -10,6 +10,8 @@ import PlayerScript from "../components/PlayerScript";
 import spriteData from "../spriteData";
 
 export default function Player(props: GameObjectProps) {
+  //console.log("spriteData.player", spriteData.player);
+
   return (
     <GameObject name="player" displayName="Player" layer="character" {...props}>
       <Moveable />

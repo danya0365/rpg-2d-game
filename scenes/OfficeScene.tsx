@@ -12,6 +12,7 @@ import Plant from "../entities/Plant";
 import Player from "../entities/Player";
 import Workstation from "../entities/Workstation";
 import spriteData from "../spriteData";
+import HtmlOverlay from "@/@core/HtmlOverlay";
 
 const mapData = mapDataString(`
 # # # # # # # # # # # # # # # # #
@@ -80,6 +81,8 @@ const resolveMapTile: any = (type: any, x: any, y: any) => {
 export default function OfficeScene() {
   console.log("office scene");
 
+  //return <HtmlOverlay>Office Scene 555</HtmlOverlay>;
+
   return (
     <>
       <GameObject name="map">
@@ -96,6 +99,7 @@ export default function OfficeScene() {
         />
       </GameObject>
       <Player x={6} y={3} />
+      <HtmlOverlay>Office</HtmlOverlay>
     </>
   );
 }

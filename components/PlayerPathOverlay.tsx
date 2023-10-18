@@ -39,7 +39,7 @@ export default function PlayerPathOverlay({
 
   let renderedPath = null;
 
-  if (pathVisible && pointerPath) {
+  if (pathVisible && pointerPath && path) {
     renderedPath = path.length
       ? path.map(({ x, y }, index) => (
           <group key={`${x}-${y}`} position={[x, y, offsetZ]}>

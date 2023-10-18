@@ -8,6 +8,7 @@ import TileMap, { TileMapResolver } from "../@core/TileMap";
 import { mapDataString } from "../@core/utils/mapUtils";
 import Player from "../entities/Player";
 import spriteData from "../spriteData";
+import HtmlOverlay from "@/@core/HtmlOverlay";
 
 const mapData = mapDataString(`
 # # # # # #
@@ -57,6 +58,7 @@ export default function OtherScene() {
         />
       </GameObject>
       <Player x={0} y={2} />
+      <HtmlOverlay>Other</HtmlOverlay>
     </>
   );
 }

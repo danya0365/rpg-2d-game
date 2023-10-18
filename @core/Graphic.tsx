@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -11,6 +12,7 @@ import * as THREE from "three";
 import { Position } from "./GameObject";
 import useAsset from "./useAsset";
 import useGameLoop from "./useGameLoop";
+import { useLoader } from "@react-three/fiber";
 
 export interface GraphicProps {
   src: string;
@@ -57,7 +59,7 @@ export default memo(
       magFilter = THREE.NearestFilter,
       onIteration,
     }: GraphicProps,
-    ref
+    outerRef
   ) {
     if (!sheet[state]) {
       // eslint-disable-next-line no-console
@@ -69,7 +71,7 @@ export default memo(
 
     const innerRef = useRef<THREE.Mesh>(null!);
     useImperativeHandle(
-      ref,
+      outerRef,
       () => {
         return innerRef.current;
       },
@@ -77,18 +79,8 @@ export default memo(
     );
 
     const image = useAsset(src) as HTMLImageElement;
-    // const textureRef = useUpdate<THREE.Texture>((texture) => {
-    //   texture.needsUpdate = true;
-    // }, []);
-
+    const texture = useLoader(THREE.TextureLoader, src);
     const textureRef = useRef<THREE.Texture>(null!);
-    useImperativeHandle(
-      textureRef,
-      () => {
-        return textureRef.current;
-      },
-      []
-    );
 
     const mounted = useRef(true);
     const interval = useRef<number>();
@@ -154,7 +146,7 @@ export default memo(
       [opacity, blending, color]
     );
 
-    const textureProps = useMemo<Partial<any>>(() => {
+    const textureProps = useMemo(() => {
       const size = {
         x: image.width / frameWidth,
         y: image.height / frameHeight,
@@ -167,6 +159,18 @@ export default memo(
       };
     }, [frameHeight, frameWidth, image, magFilter]);
 
+    useLayoutEffect(() => {
+      textureRef.current = texture;
+      textureRef.current.image = textureProps.image;
+      textureRef.current.repeat = textureProps.repeat;
+      textureRef.current.minFilter = THREE.LinearMipMapLinearFilter;
+      textureRef.current.magFilter = magFilter as any;
+    }, [texture, textureProps]);
+
+    //console.log("textureProps", textureProps);
+
+    // TODO: load image texture here
+    // https://github.com/pmndrs/react-three-fiber/discussions/487
     return (
       <mesh
         ref={innerRef}
@@ -175,13 +179,17 @@ export default memo(
         geometry={geometry}
       >
         {basic ? (
-          <meshBasicMaterial attach="material" {...materialProps}>
-            <texture ref={textureRef} attach="map" {...textureProps} />
-          </meshBasicMaterial>
+          <meshBasicMaterial
+            attach="material"
+            map={texture}
+            {...materialProps}
+          />
         ) : (
-          <meshLambertMaterial attach="material" {...materialProps}>
-            <texture ref={textureRef} attach="map" {...textureProps} />
-          </meshLambertMaterial>
+          <meshLambertMaterial
+            attach="material"
+            map={texture}
+            {...materialProps}
+          />
         )}
       </mesh>
     );

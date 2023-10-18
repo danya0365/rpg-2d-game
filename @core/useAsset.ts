@@ -12,8 +12,12 @@ export default function useAsset(urlOrObj: AssetUrlParam) {
     let url = typeof urlOrObj === "string" ? urlOrObj : urlOrObj.src;
     // eslint-disable-next-line prefer-destructuring
     if (Array.isArray(url)) url = url[0];
-    return assets.current[url];
+    const data = assets.current[url];
+    console.log("useAsset", data);
+
+    return data;
   } catch {
+    console.log("useAsset", null);
     return null;
   }
 }
