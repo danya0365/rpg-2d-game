@@ -13,11 +13,8 @@ export default function useAsset(urlOrObj: AssetUrlParam) {
     // eslint-disable-next-line prefer-destructuring
     if (Array.isArray(url)) url = url[0];
     const data = assets.current[url];
-    console.log("useAsset", data);
-
     return data;
   } catch {
-    console.log("useAsset", null);
     return null;
   }
 }

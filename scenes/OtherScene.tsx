@@ -18,7 +18,7 @@ const mapData = mapDataString(`
 # # # # # #
 `);
 
-const resolveMapTile: any = (type: any, x: any, y: any) => {
+const resolveMapTile: TileMapResolver = (type, x, y) => {
   const key = `${x}-${y}`;
   const position = { x, y };
 

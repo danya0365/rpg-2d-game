@@ -3,16 +3,16 @@ import React, {
   memo,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import * as THREE from "three";
 import { Position } from "./GameObject";
-import useAsset from "./useAsset";
 import useGameLoop from "./useGameLoop";
 import { useLoader } from "@react-three/fiber";
+import HtmlOverlay from "./HtmlOverlay";
 
 export interface GraphicProps {
   src: string;
@@ -34,11 +34,7 @@ export interface GraphicProps {
   onIteration?: () => void;
 }
 
-// create geometry once and reuse
-const geometry = new THREE.PlaneGeometry(1, 1);
-
 export default memo(
-  /* eslint-disable react/prop-types */
   forwardRef<THREE.Mesh, GraphicProps>(function Graphic(
     {
       src,
@@ -69,7 +65,8 @@ export default memo(
       );
     }
 
-    const image = useAsset(src) as HTMLImageElement;
+    const [frameState, setFrameState] = useState<any>();
+
     const texture = useLoader(THREE.TextureLoader, src);
     const textureRef = useRef<THREE.Texture>(null!);
 
@@ -83,11 +80,19 @@ export default memo(
 
     const handleFrameUpdate = useCallback(() => {
       const currentFrame = firstFrame[0] + frame.current;
-      const textureOffsetX = (currentFrame * frameWidth) / image.width;
-      const textureOffsetY = (firstFrame[1] * frameHeight) / image.height;
+      const textureOffsetX =
+        (currentFrame * frameWidth) / textureRef.current.image.width;
+      const textureOffsetY =
+        (firstFrame[1] * frameHeight) / textureRef.current.image.height;
       textureRef.current.offset.setX(textureOffsetX);
       textureRef.current.offset.setY(textureOffsetY);
-    }, [firstFrame, frameHeight, frameWidth, image, textureRef]);
+      setFrameState({
+        state,
+        textureOffsetX,
+        textureOffsetY,
+      });
+      console.log("setFrameState", state, currentFrame);
+    }, [firstFrame, frameHeight, frameWidth, textureRef.current, frame, state]);
 
     // initial frame update
     useEffect(() => handleFrameUpdate(), [handleFrameUpdate]);
@@ -139,32 +144,55 @@ export default memo(
 
     const textureProps = useMemo(() => {
       const size = {
-        x: image.width / frameWidth,
-        y: image.height / frameHeight,
+        x: texture.image.width / frameWidth,
+        y: texture.image.height / frameHeight,
       };
       return {
-        image,
         repeat: new THREE.Vector2(1 / size.x, 1 / size.y),
         magFilter,
         minFilter: THREE.LinearMipMapLinearFilter,
       };
-    }, [frameHeight, frameWidth, image, magFilter]);
+    }, []);
 
     useLayoutEffect(() => {
       textureRef.current = texture;
-      textureRef.current.image = textureProps.image;
       textureRef.current.repeat = textureProps.repeat;
-      textureRef.current.minFilter = THREE.LinearMipMapLinearFilter;
+      textureRef.current.minFilter = textureProps.minFilter;
       textureRef.current.magFilter = magFilter as any;
-    }, []);
+      const currentFrame = firstFrame[0] + frame.current;
+      const textureOffsetX =
+        (currentFrame * frameWidth) / textureRef.current.image.width;
+      const textureOffsetY =
+        (firstFrame[1] * frameHeight) / textureRef.current.image.height;
+      textureRef.current.offset.setX(textureOffsetX);
+      textureRef.current.offset.setY(textureOffsetY);
+    }, [textureProps]);
+
+    //console.log("render");
+
+    // return (
+    //   <group>
+    //     <HtmlOverlay>
+    //       <div style={{ fontSize: "6px" }}>
+    //         {frameState ? frameState.state : ""}
+    //       </div>
+    //       <div style={{ fontSize: "6px" }}>
+    //         {frameState ? frameState.textureOffsetX : ""}
+    //       </div>
+    //       <div style={{ fontSize: "6px" }}>
+    //         {frameState ? frameState.textureOffsetY : ""}
+    //       </div>
+    //     </HtmlOverlay>
+    //   </group>
+    // );
 
     return (
       <mesh
         ref={outerRef}
         position={[offset.x, offset.y, -offset.y / 100]}
         scale={[flipX * scale, scale, 1]}
-        geometry={geometry}
       >
+        <planeGeometry attach="geometry" />
         {basic ? (
           <meshBasicMaterial
             attach="material"
@@ -178,6 +206,19 @@ export default memo(
             {...materialProps}
           />
         )}
+        <group>
+          <HtmlOverlay>
+            <div style={{ fontSize: "6px" }}>
+              {frameState ? frameState.state : ""}
+            </div>
+            <div style={{ fontSize: "6px" }}>
+              {frameState ? frameState.textureOffsetX : ""}
+            </div>
+            <div style={{ fontSize: "6px" }}>
+              {frameState ? frameState.textureOffsetY : ""}
+            </div>
+          </HtmlOverlay>
+        </group>
       </mesh>
     );
   })

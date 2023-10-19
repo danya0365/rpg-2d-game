@@ -11,7 +11,7 @@ export type TileMapResolver = (
   type: TileMapDataValue,
   x: number,
   y: number
-) => React.ReactElement;
+) => React.ReactElement | null;
 
 interface Props {
   data: TileMapData;

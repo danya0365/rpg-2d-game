@@ -135,7 +135,5 @@ export default function AssetLoader({
     ) : null;
   }
 
-  console.log("ready");
-
   return <AssetLoaderProvider>{children}</AssetLoaderProvider>;
 }

@@ -6,12 +6,12 @@ export default function HtmlOverlay({ children, ...props }: HtmlProps) {
   const { paused } = useGame();
   const node = useRef<HTMLDivElement>(null!);
 
-  useEffect(() => {
-    if (node.current?.parentElement) {
-      node.current.parentElement.style.pointerEvents = "none";
-      node.current.parentElement.style.whiteSpace = "nowrap";
-    }
-  });
+  // useEffect(() => {
+  //   if (node.current?.parentElement) {
+  //     node.current.parentElement.style.pointerEvents = "none";
+  //     node.current.parentElement.style.whiteSpace = "nowrap";
+  //   }
+  // });
 
   if (paused) return null;
 
